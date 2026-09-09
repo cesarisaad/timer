@@ -2,15 +2,15 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>HIIT & Tabata Pro Timer</title>
   <meta name="theme-color" content="#000000">
 
-  <!-- Favicon e Ícono de App Naranja/Negro (SVG embebido en Base64) -->
+  <!-- Favicon e Ícono de App Naranja/Negro -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%23121212'/><path d='M100 210 h40 v92 h-40 z M372 210 h40 v92 h-40 z M140 230 h30 v52 h-30 z M342 230 h30 v52 h-30 z M170 246 h172 v20 h-172 z' fill='%23f39c12'/></svg>">
   <link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%23121212'/><path d='M100 210 h40 v92 h-40 z M372 210 h40 v92 h-40 z M140 230 h30 v52 h-30 z M342 230 h30 v52 h-30 z M170 246 h172 v20 h-172 z' fill='%23f39c12'/></svg>">
 
-  <!-- Web App Manifest con Ícono Vinculado -->
+  <!-- Web App Manifest -->
   <link rel="manifest" href="data:application/manifest+json,{
     %22name%22:%22Tabata%20Pro%20Timer%22,
     %22short_name%22:%22TabataTimer%22,
@@ -38,49 +38,71 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background-color: var(--bg-color); color: var(--text-color); display: flex; flex-direction: column; min-height: 100vh; overflow: hidden; }
     
-    header { background: #000; padding: 15px; text-align: center; border-bottom: 1px solid #333; z-index: 10; }
-    h1 { font-size: 1.4rem; color: var(--accent); letter-spacing: 1px; }
+    /* Soporte para barra de navegación nativa de Android */
+    body { 
+      background-color: var(--bg-color); 
+      color: var(--text-color); 
+      display: flex; 
+      flex-direction: column; 
+      height: 100vh;
+      height: 100dvh; /* Dynamic Viewport Height */
+      overflow: hidden; 
+      padding-bottom: env(safe-area-inset-bottom, 20px);
+    }
+    
+    header { background: #000; padding: 12px; text-align: center; border-bottom: 1px solid #333; z-index: 10; }
+    h1 { font-size: 1.3rem; color: var(--accent); letter-spacing: 1px; }
 
     nav { display: flex; background: #000; border-bottom: 1px solid #333; z-index: 10; }
     nav button { flex: 1; padding: 12px; background: none; border: none; color: #888; font-weight: bold; font-size: 0.9rem; cursor: pointer; }
     nav button.active { color: var(--accent); border-bottom: 3px solid var(--accent); }
 
-    .view { display: none; padding: 20px; flex: 1; z-index: 2; }
+    .view { display: none; padding: 15px; flex: 1; z-index: 2; overflow-y: auto; }
     .view.active { display: block; }
 
-    .form-group { margin-bottom: 15px; }
-    label { display: block; margin-bottom: 5px; font-size: 0.9rem; color: #aaa; }
-    input[type="number"], input[type="text"] { width: 100%; padding: 12px; background: var(--card-bg); border: 1px solid #333; border-radius: 8px; color: #fff; font-size: 1rem; }
+    .form-group { margin-bottom: 12px; }
+    label { display: block; margin-bottom: 5px; font-size: 0.85rem; color: #aaa; }
+    input[type="number"], input[type="text"] { width: 100%; padding: 10px; background: var(--card-bg); border: 1px solid #333; border-radius: 8px; color: #fff; font-size: 1rem; }
 
-    /* Indicador de Tiempo Total */
     .total-time-badge {
       background: #2a2a2a;
       border: 1px solid var(--accent);
       border-radius: 8px;
-      padding: 12px;
+      padding: 10px;
       text-align: center;
-      margin-bottom: 15px;
-      font-size: 1rem;
+      margin-bottom: 12px;
+      font-size: 0.95rem;
       color: #fff;
     }
-    .total-time-badge strong { color: var(--accent); font-size: 1.2rem; }
+    .total-time-badge strong { color: var(--accent); font-size: 1.1rem; }
 
-    .exercise-list { margin-top: 15px; list-style: none; }
+    .exercise-list { margin-top: 10px; list-style: none; }
     .exercise-item { background: var(--card-bg); padding: 10px 15px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
     .btn-danger { background: #c0392b; color: #fff; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
 
-    .btn-main { width: 100%; padding: 15px; background: var(--accent); color: #fff; border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
+    .btn-main { width: 100%; padding: 14px; background: var(--accent); color: #fff; border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
 
-    /* Pantalla de Temporizador */
-    #timer-screen { text-align: center; display: flex; flex-direction: column; justify-content: space-between; height: 78vh; position: relative; }
+    /* Pantalla de Temporizador Ajustada */
+    #timer-view.active {
+      display: flex;
+      flex-direction: column;
+    }
+
+    #timer-screen { 
+      text-align: center; 
+      display: flex; 
+      flex-direction: column; 
+      justify-content: space-between; 
+      height: 100%;
+      padding-bottom: 10px;
+    }
     
     .timer-display-container {
       position: relative;
-      margin: 10px auto;
-      width: 270px;
-      height: 270px;
+      margin: 5px auto;
+      width: 230px;
+      height: 230px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -104,7 +126,7 @@
     }
 
     #time-display { 
-      font-size: 6.5rem; 
+      font-size: 5.5rem; 
       font-weight: 800; 
       font-family: monospace; 
       line-height: 1; 
@@ -113,13 +135,13 @@
       text-shadow: 0 4px 10px rgba(0,0,0,0.9);
     }
 
-    #phase-display { font-size: 2.2rem; font-weight: bold; text-transform: uppercase; margin-top: 10px; text-shadow: 0 2px 5px rgba(0,0,0,0.8); }
-    #exercise-display { font-size: 1.5rem; color: #eee; margin-top: 5px; }
-    #progress-display { font-size: 1.1rem; color: #aaa; }
-    #total-workout-timer { font-size: 0.9rem; color: #888; margin-top: 4px; }
+    #phase-display { font-size: 1.8rem; font-weight: bold; text-transform: uppercase; margin-top: 5px; text-shadow: 0 2px 5px rgba(0,0,0,0.8); }
+    #exercise-display { font-size: 1.3rem; color: #eee; margin-top: 2px; }
+    #progress-display { font-size: 1rem; color: #aaa; }
+    #total-workout-timer { font-size: 0.85rem; color: #888; margin-top: 2px; }
 
-    .timer-controls { display: flex; gap: 10px; }
-    .timer-controls button { flex: 1; padding: 15px; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; color: #fff; cursor: pointer; }
+    .timer-controls { display: flex; gap: 10px; margin-top: 10px; padding-bottom: 5px; }
+    .timer-controls button { flex: 1; padding: 14px; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; color: #fff; cursor: pointer; }
     #btn-pause { background: #f39c12; }
     #btn-stop { background: #e74c3c; }
 
@@ -144,7 +166,6 @@
   <!-- Vista 1: Configuración -->
   <div id="config-view" class="view active">
     
-    <!-- Banner de Tiempo Total Estimado -->
     <div class="total-time-badge">
       Tiempo Total de la Sesión: <strong id="calculated-total-time">00:00 min</strong>
     </div>
@@ -168,7 +189,7 @@
       </div>
     </div>
 
-    <hr style="border: 0.5px solid #333; margin: 15px 0;">
+    <hr style="border: 0.5px solid #333; margin: 10px 0;">
 
     <div class="form-group">
       <label>Agregar Ejercicio a la Sesión</label>
@@ -191,7 +212,6 @@
         <div id="exercise-display">Ejercicio</div>
       </div>
 
-      <!-- Reloj con Blur Dinámico -->
       <div class="timer-display-container">
         <div id="timer-blur-bg"></div>
         <div id="time-display">00</div>
@@ -200,7 +220,7 @@
       <div>
         <div id="progress-display">Serie 1/4 | Ejercicio 1/1</div>
         <div id="total-workout-timer">Tiempo Sesión: 00:00 / 00:00</div>
-        <br>
+        
         <div class="timer-controls">
           <button id="btn-pause" onclick="togglePause()">Pausar</button>
           <button id="btn-stop" onclick="stopWorkout()">Cancelar</button>
@@ -217,7 +237,6 @@
   </div>
 
   <script>
-    // --- Estado de la App ---
     let exercises = ["Entrenamiento HIIT"];
     let workoutState = {
       prep: 10, work: 20, rest: 10, sets: 4,
@@ -226,14 +245,12 @@
       wakeLock: null, totalDuration: 0, estimatedTotalSeconds: 0
     };
 
-    // --- Auxiliar: Formatear segundos a MM:SS ---
     function formatTime(seconds) {
       const mins = Math.floor(seconds / 60);
       const secs = seconds % 60;
       return `${mins < 10 ? '0' : ''}${mins}:${secs < 10 ? '0' : ''}${secs}`;
     }
 
-    // --- Cálculo del Tiempo Total del Entrenamiento ---
     function calculateTotalWorkoutTime() {
       const prep = parseInt(document.getElementById('prep-time').value) || 0;
       const work = parseInt(document.getElementById('work-time').value) || 0;
@@ -241,14 +258,12 @@
       const sets = parseInt(document.getElementById('sets-count').value) || 1;
       const numExercises = exercises.length || 1;
 
-      // Tiempo por ejercicio = Preparación + (Trabajo + Descanso) * Series
       const timePerExercise = prep + ((work + rest) * sets);
       workoutState.estimatedTotalSeconds = timePerExercise * numExercises;
 
       document.getElementById('calculated-total-time').textContent = `${formatTime(workoutState.estimatedTotalSeconds)} min`;
     }
 
-    // --- Sistema de Audio (Web Audio API) ---
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     
     function playBeep(freq = 440, duration = 0.15) {
@@ -265,7 +280,7 @@
 
     function playChime() {
       if (audioCtx.state === 'suspended') audioCtx.resume();
-      const notes = [523.25, 659.25, 783.99]; // Frecuencias musicales Do-Mi-Sol
+      const notes = [523.25, 659.25, 783.99];
       notes.forEach((freq, idx) => {
         setTimeout(() => {
           const osc = audioCtx.createOscillator();
@@ -282,7 +297,6 @@
       });
     }
 
-    // --- Wake Lock (Pantalla Encendida) ---
     async function requestWakeLock() {
       try {
         if ('wakeLock' in navigator) {
@@ -298,7 +312,6 @@
       }
     }
 
-    // --- Navegación ---
     function switchView(viewId) {
       document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
       document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
@@ -312,7 +325,6 @@
       }
     }
 
-    // --- Gestión de Ejercicios ---
     function renderExercises() {
       const list = document.getElementById('exercise-list');
       list.innerHTML = '';
@@ -342,7 +354,6 @@
       renderExercises();
     }
 
-    // --- Lógica del Temporizador ---
     function startWorkout() {
       workoutState.prep = parseInt(document.getElementById('prep-time').value) || 0;
       workoutState.work = parseInt(document.getElementById('work-time').value) || 20;
@@ -378,7 +389,6 @@
 
       workoutState.totalDuration++;
 
-      // Sonido de cuenta regresiva
       if (workoutState.timeRemaining <= 3 && workoutState.timeRemaining > 1) {
         playBeep(440, 0.1);
       } else if (workoutState.timeRemaining === 1) {
@@ -462,15 +472,12 @@
       exEl.textContent = exercises[workoutState.currentExIndex];
       progEl.textContent = `Serie ${workoutState.currentSet}/${workoutState.sets} | Ejercicio ${workoutState.currentExIndex + 1}/${exercises.length}`;
       
-      // Actualizar contador del tiempo total acumulado vs estimación
       totalTimerEl.textContent = `Tiempo Sesión: ${formatTime(workoutState.totalDuration)} / ${formatTime(workoutState.estimatedTotalSeconds)}`;
 
-      // Fondo difuminado
       const elapsed = workoutState.phaseTotalTime - workoutState.timeRemaining;
       const progressPercent = Math.min(100, Math.max(0, (elapsed / workoutState.phaseTotalTime) * 100));
       blurBg.style.height = `${progressPercent}%`;
 
-      // Colores por fase
       if (workoutState.currentPhase === 'PREP') {
         phaseEl.textContent = "PREPARADOS";
         phaseEl.style.color = "var(--prep-color)";
@@ -508,7 +515,6 @@
       switchView('history-view');
     }
 
-    // --- Historial (localStorage) ---
     function saveHistory() {
       const history = JSON.parse(localStorage.getItem('hiit_history') || '[]');
       const session = {
@@ -546,7 +552,6 @@
       }
     }
 
-    // Inicializar
     renderExercises();
   </script>
 </body>
