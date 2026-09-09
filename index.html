@@ -10,20 +10,7 @@
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%23121212'/><path d='M100 210 h40 v92 h-40 z M372 210 h40 v92 h-40 z M140 230 h30 v52 h-30 z M342 230 h30 v52 h-30 z M170 246 h172 v20 h-172 z' fill='%23f39c12'/></svg>">
   <link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%23121212'/><path d='M100 210 h40 v92 h-40 z M372 210 h40 v92 h-40 z M140 230 h30 v52 h-30 z M342 230 h30 v52 h-30 z M170 246 h172 v20 h-172 z' fill='%23f39c12'/></svg>">
 
-  <link rel="manifest" href="data:application/manifest+json,{
-    %22name%22:%22Tabata%20Pro%20Timer%22,
-    %22short_name%22:%22TabataTimer%22,
-    %22start_url%22:%22.%22,
-    %22display%22:%22fullscreen%22,
-    %22background_color%22:%22%23000000%22,
-    %22theme_color%22:%22%23000000%22,
-    %22icons%22:[{
-      %22src%22:%22data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%23121212'/><path d='M100 210 h40 v92 h-40 z M372 210 h40 v92 h-40 z M140 230 h30 v52 h-30 z M342 230 h30 v52 h-30 z M170 246 h172 v20 h-172 z' fill='%23f39c12'/></svg>%22,
-      %22sizes%22:%22512x512%22,
-      %22type%22:%22image/svg+xml%22,
-      %22purpose%22:%22any%20maskable%22
-    }]
-  }">
+  <link rel="manifest" href="manifest.json">
 
   <style>
     :root {
@@ -712,6 +699,15 @@
     renderPresetSelector();
     renderExercises();
     resetTimerScreen();
+
+    // Registro del Service Worker para soporte PWA offline
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then((reg) => console.log('Service Worker registrado con éxito:', reg.scope))
+          .catch((err) => console.error('Error al registrar el Service Worker:', err));
+      });
+    }
   </script>
 </body>
 </html>
