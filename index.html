@@ -25,7 +25,6 @@
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     
-    /* Soporte para la barra inferior de Android */
     body { 
       background-color: var(--bg-color); 
       color: var(--text-color); 
@@ -81,7 +80,7 @@
     }
 
     .exercise-header { display: flex; justify-content: space-between; align-items: center; font-weight: bold; margin-bottom: 6px; }
-    .exercise-params { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px; font-size: 0.75rem; color: #aaa; }
+    .exercise-params { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 4px; font-size: 0.75rem; color: #aaa; }
     .exercise-params span { background: #121212; padding: 4px; border-radius: 4px; text-align: center; }
 
     .btn-danger { background: #c0392b; color: #fff; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; }
@@ -157,7 +156,7 @@
       <div class="form-group"><label>Series</label><input type="number" id="sets-count" value="4" min="1"></div>
     </div>
 
-    <button onclick="addExercise()" style="width: 100%; padding: 10px; background: #27ae60; color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-bottom: 12px;">+ Agregar Ejercicio</button>
+    <button id="btn-add-exercise" onclick="addOrUpdateExercise()" style="width: 100%; padding: 10px; background: #27ae60; color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-bottom: 12px;">+ Agregar Ejercicio</button>
 
     <h3 style="font-size: 0.85rem; color: #aaa; margin-bottom: 6px;">Lista de Ejercicios en la Sesión:</h3>
     <ul id="exercise-list" class="exercise-list"></ul>
@@ -210,6 +209,8 @@
       timeRemaining: 0, phaseTotalTime: 0, isPaused: false, timerInterval: null,
       wakeLock: null, totalDuration: 0, estimatedTotalSeconds: 0
     };
+
+    let editingExerciseIndex = null;
 
     function enableFullscreen() {
       const elem = document.documentElement;
@@ -310,7 +311,7 @@
       }
     }
 
-    // Exportar presets a archivo .json local
+    // Exportar presets
     function exportPresets() {
       const presets = getStoredPresets();
       if (Object.keys(presets).length === 0) {
@@ -327,7 +328,7 @@
       downloadAnchor.remove();
     }
     
-    // Importar presets desde archivo .json
+    // Importar presets
     function importPresets(event) {
       const file = event.target.files[0];
       if (!file) return;
@@ -415,7 +416,7 @@
       }
     }
 
-    // --- Renderizado y Eventos Drag & Drop ---
+    // --- Renderizado y Edición de Ejercicios ---
     function renderExercises() {
       const list = document.getElementById('exercise-list');
       list.innerHTML = '';
@@ -430,9 +431,11 @@
           <div class="exercise-header" style="display: flex; align-items: center; width: 100%;">
             <span class="drag-handle">☰</span>
             <span style="flex-grow: 1;">${idx + 1}. ${ex.name}</span>
+            <button onclick="editExercise(${idx})" style="background: #f39c12; color: #fff; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; margin-right: 5px;">✏️</button>
             <button class="btn-danger" onclick="removeExercise(${idx})">✕</button>
           </div>
           <div class="exercise-params">
+            <span>Prep: ${ex.prep}s</span>
             <span>Trabajo: ${ex.work}s</span>
             <span>Descanso: ${ex.rest}s</span>
             <span>Series: ${ex.sets}</span>
@@ -451,7 +454,22 @@
       calculateTotalWorkoutTime();
     }
 
-    function addExercise() {
+    function editExercise(idx) {
+      const ex = exercises[idx];
+      editingExerciseIndex = idx;
+
+      document.getElementById('ex-name').value = ex.name;
+      document.getElementById('prep-time').value = ex.prep;
+      document.getElementById('work-time').value = ex.work;
+      document.getElementById('rest-time').value = ex.rest;
+      document.getElementById('sets-count').value = ex.sets;
+
+      const btnAdd = document.getElementById('btn-add-exercise');
+      btnAdd.textContent = "✓ Actualizar Ejercicio";
+      btnAdd.style.background = "#f39c12";
+    }
+
+    function addOrUpdateExercise() {
       const nameInput = document.getElementById('ex-name');
       const prep = parseInt(document.getElementById('prep-time').value) || 0;
       const work = parseInt(document.getElementById('work-time').value) || 20;
@@ -460,13 +478,29 @@
 
       const name = nameInput.value.trim() !== '' ? nameInput.value.trim() : `Ejercicio ${exercises.length + 1}`;
 
-      exercises.push({ name, prep, work, rest, sets });
+      if (editingExerciseIndex !== null) {
+        exercises[editingExerciseIndex] = { name, prep, work, rest, sets };
+        editingExerciseIndex = null;
+
+        const btnAdd = document.getElementById('btn-add-exercise');
+        btnAdd.textContent = "+ Agregar Ejercicio";
+        btnAdd.style.background = "#27ae60";
+      } else {
+        exercises.push({ name, prep, work, rest, sets });
+      }
+
       nameInput.value = '';
       renderExercises();
     }
 
     function removeExercise(idx) {
       exercises.splice(idx, 1);
+      if (editingExerciseIndex === idx) {
+        editingExerciseIndex = null;
+        const btnAdd = document.getElementById('btn-add-exercise');
+        btnAdd.textContent = "+ Agregar Ejercicio";
+        btnAdd.style.background = "#27ae60";
+      }
       renderExercises();
     }
 
@@ -747,12 +781,13 @@
     renderExercises();
     resetTimerScreen();
 
-    // Registro del Service Worker para soporte PWA offline
+    // Registro del Service Worker
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
-          .then((reg) => console.log('Service Worker registrado con éxito:', reg.scope))
-          .catch((err) => console.error('Error al registrar el Service Worker:', err));
+        navigator.serviceWorker.register('./sw.js').then((reg) => {
+          reg.update();
+          console.log('Service Worker registrado con éxito:', reg.scope);
+        }).catch((err) => console.error('Error al registrar el Service Worker:', err));
       });
     }
   </script>
