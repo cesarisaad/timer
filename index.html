@@ -134,6 +134,11 @@
         <button onclick="saveCurrentPreset()" style="padding: 8px 12px; background: #2980b9; color: #fff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; white-space: nowrap;">Guardar/Editar</button>
         <button onclick="deleteSelectedPreset()" class="btn-danger" style="border-radius: 6px;">Eliminar</button>
       </div>
+      <div class="preset-actions" style="margin-top: 10px; border-top: 1px solid #333; padding-top: 8px;">
+        <button onclick="exportPresets()" style="padding: 6px 10px; background: #27ae60; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 0.8rem; flex: 1;">📥 Exportar Copia</button>
+        <label for="import-file" style="padding: 6px 10px; background: #8e44ad; color: #fff; border-radius: 6px; cursor: pointer; font-size: 0.8rem; text-align: center; flex: 1;">📤 Importar Copia</label>
+        <input type="file" id="import-file" accept=".json" onchange="importPresets(event)" style="display: none;">
+      </div>
     </div>
 
     <div class="total-time-badge">
@@ -303,6 +308,48 @@
         document.getElementById('preset-name').value = '';
         renderPresetSelector();
       }
+    }
+
+    // Exportar presets a archivo .json local
+    function exportPresets() {
+      const presets = getStoredPresets();
+      if (Object.keys(presets).length === 0) {
+        alert("No tienes rutinas guardadas para exportar.");
+        return;
+      }
+      
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(presets, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", "backup_rutinas_tabata.json");
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+    
+    // Importar presets desde archivo .json
+    function importPresets(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+    
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const importedPresets = JSON.parse(e.target.result);
+          if (typeof importedPresets === 'object' && importedPresets !== null) {
+            const currentPresets = getStoredPresets();
+            const updatedPresets = { ...currentPresets, ...importedPresets };
+            localStorage.setItem('hiit_presets', JSON.stringify(updatedPresets));
+            renderPresetSelector();
+            alert("¡Rutinas importadas y respaldadas con éxito!");
+          } else {
+            alert("El archivo seleccionado no tiene un formato válido.");
+          }
+        } catch (err) {
+          alert("Error al leer el archivo de respaldo.");
+        }
+      };
+      reader.readAsText(file);
     }
 
     // --- Audio System ---
