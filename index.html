@@ -10,12 +10,12 @@
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%23121212'/><path d='M100 210 h40 v92 h-40 z M372 210 h40 v92 h-40 z M140 230 h30 v52 h-30 z M342 230 h30 v52 h-30 z M170 246 h172 v20 h-172 z' fill='%23f39c12'/></svg>">
   <link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%23121212'/><path d='M100 210 h40 v92 h-40 z M372 210 h40 v92 h-40 z M140 230 h30 v52 h-30 z M342 230 h30 v52 h-30 z M170 246 h172 v20 h-172 z' fill='%23f39c12'/></svg>">
 
-  <!-- Web App Manifest -->
+  <!-- Web App Manifest con pantalla completa (Standalone / Fullscreen) -->
   <link rel="manifest" href="data:application/manifest+json,{
     %22name%22:%22Tabata%20Pro%20Timer%22,
     %22short_name%22:%22TabataTimer%22,
     %22start_url%22:%22.%22,
-    %22display%22:%22standalone%22,
+    %22display%22:%22fullscreen%22,
     %22background_color%22:%22%23000000%22,
     %22theme_color%22:%22%23000000%22,
     %22icons%22:[{
@@ -39,14 +39,13 @@
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     
-    /* Soporte para barra de navegación nativa de Android */
     body { 
       background-color: var(--bg-color); 
       color: var(--text-color); 
       display: flex; 
       flex-direction: column; 
       height: 100vh;
-      height: 100dvh; /* Dynamic Viewport Height */
+      height: 100dvh;
       overflow: hidden; 
       padding-bottom: env(safe-area-inset-bottom, 20px);
     }
@@ -83,7 +82,6 @@
 
     .btn-main { width: 100%; padding: 14px; background: var(--accent); color: #fff; border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
 
-    /* Pantalla de Temporizador Ajustada */
     #timer-view.active {
       display: flex;
       flex-direction: column;
@@ -145,6 +143,32 @@
     #btn-pause { background: #f39c12; }
     #btn-stop { background: #e74c3c; }
 
+    /* Estilo del Toast (Mensaje para presionar Atrás 2 veces) */
+    #toast-msg {
+      visibility: hidden;
+      min-width: 250px;
+      background-color: #333;
+      color: #fff;
+      text-align: center;
+      border-radius: 25px;
+      padding: 12px 20px;
+      position: fixed;
+      z-index: 1000;
+      left: 50%;
+      bottom: 50px;
+      transform: translateX(-50%);
+      font-size: 0.9rem;
+      border: 1px solid #555;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+      opacity: 0;
+      transition: opacity 0.3s, visibility 0.3s;
+    }
+
+    #toast-msg.show {
+      visibility: visible;
+      opacity: 1;
+    }
+
     /* Historial */
     .history-item { background: var(--card-bg); padding: 12px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid var(--accent); }
     .history-date { font-size: 0.8rem; color: #888; }
@@ -165,7 +189,6 @@
 
   <!-- Vista 1: Configuración -->
   <div id="config-view" class="view active">
-    
     <div class="total-time-badge">
       Tiempo Total de la Sesión: <strong id="calculated-total-time">00:00 min</strong>
     </div>
@@ -236,6 +259,9 @@
     <button onclick="clearHistory()" style="background: none; border: 1px solid #444; color: #888; padding: 8px; width: 100%; margin-top: 15px; border-radius: 5px;">Limpiar Historial</button>
   </div>
 
+  <!-- Contenedor del Toast Emergente -->
+  <div id="toast-msg">Presiona "Atrás" nuevamente para salir</div>
+
   <script>
     let exercises = ["Entrenamiento HIIT"];
     let workoutState = {
@@ -245,6 +271,58 @@
       wakeLock: null, totalDuration: 0, estimatedTotalSeconds: 0
     };
 
+    // --- Control de Pantalla Completa ---
+    function enableFullscreen() {
+      const elem = document.documentElement;
+      if (elem.requestFullscreen) {
+        elem.requestFullscreen().catch(() => {});
+      } else if (elem.webkitRequestFullscreen) { /* Safari / Older Android */
+        elem.webkitRequestFullscreen().catch(() => {});
+      }
+    }
+
+    // --- Control del Botón Atrás de Android (Doble Toque para Salir) ---
+    let backPressedOnce = false;
+    let toastTimeout = null;
+
+    function initBackButtonHandler() {
+      // Introducir un estado en la historia
+      history.pushState({ page: 1 }, "", "");
+
+      window.addEventListener("popstate", function (event) {
+        if (backPressedOnce) {
+          // Si presiona atrás por segunda vez dentro de los 2 segundos: salir
+          if (document.exitFullscreen && document.fullscreenElement) {
+            document.exitFullscreen();
+          }
+          window.history.back(); // Salir de la app/página
+        } else {
+          // Primer toque: Bloquear la salida y mostrar notificación
+          backPressedOnce = true;
+          history.pushState({ page: 1 }, "", ""); // Reinsertar estado para atrapar el siguiente toque
+          showToast();
+
+          // Resetear la bandera en 2 segundos
+          clearTimeout(toastTimeout);
+          toastTimeout = setTimeout(() => {
+            backPressedOnce = false;
+          }, 2000);
+        }
+      });
+    }
+
+    function showToast() {
+      const toast = document.getElementById("toast-msg");
+      toast.classList.add("show");
+      setTimeout(() => {
+        toast.classList.remove("show");
+      }, 1800);
+    }
+
+    // Inicializar el manejo del botón atrás
+    initBackButtonHandler();
+
+    // --- Auxiliar: Formatear segundos a MM:SS ---
     function formatTime(seconds) {
       const mins = Math.floor(seconds / 60);
       const secs = seconds % 60;
@@ -355,6 +433,9 @@
     }
 
     function startWorkout() {
+      // Activar pantalla completa al iniciar entrenamiento
+      enableFullscreen();
+
       workoutState.prep = parseInt(document.getElementById('prep-time').value) || 0;
       workoutState.work = parseInt(document.getElementById('work-time').value) || 20;
       workoutState.rest = parseInt(document.getElementById('rest-time').value) || 10;
