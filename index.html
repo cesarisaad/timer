@@ -10,7 +10,7 @@
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%23121212'/><path d='M100 210 h40 v92 h-40 z M372 210 h40 v92 h-40 z M140 230 h30 v52 h-30 z M342 230 h30 v52 h-30 z M170 246 h172 v20 h-172 z' fill='%23f39c12'/></svg>">
   <link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%23121212'/><path d='M100 210 h40 v92 h-40 z M372 210 h40 v92 h-40 z M140 230 h30 v52 h-30 z M342 230 h30 v52 h-30 z M170 246 h172 v20 h-172 z' fill='%23f39c12'/></svg>">
 
-  <!-- Web App Manifest con pantalla completa (Standalone / Fullscreen) -->
+  <!-- Web App Manifest -->
   <link rel="manifest" href="data:application/manifest+json,{
     %22name%22:%22Tabata%20Pro%20Timer%22,
     %22short_name%22:%22TabataTimer%22,
@@ -76,25 +76,43 @@
     }
     .total-time-badge strong { color: var(--accent); font-size: 1.1rem; }
 
+    /* Tarjetas de Ejercicios con Parámetros Propios */
     .exercise-list { margin-top: 10px; list-style: none; }
-    .exercise-item { background: var(--card-bg); padding: 10px 15px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
-    .btn-danger { background: #c0392b; color: #fff; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
+    .exercise-item { 
+      background: var(--card-bg); 
+      padding: 12px; 
+      border-radius: 8px; 
+      margin-bottom: 10px; 
+      border-left: 3px solid var(--accent);
+    }
+    .exercise-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: bold;
+      margin-bottom: 8px;
+      color: #fff;
+    }
+    .exercise-params {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 5px;
+      font-size: 0.8rem;
+      color: #aaa;
+    }
+    .exercise-params span {
+      background: #121212;
+      padding: 4px 6px;
+      border-radius: 4px;
+      text-align: center;
+    }
 
+    .btn-danger { background: #c0392b; color: #fff; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
     .btn-main { width: 100%; padding: 14px; background: var(--accent); color: #fff; border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
 
-    #timer-view.active {
-      display: flex;
-      flex-direction: column;
-    }
-
-    #timer-screen { 
-      text-align: center; 
-      display: flex; 
-      flex-direction: column; 
-      justify-content: space-between; 
-      height: 100%;
-      padding-bottom: 10px;
-    }
+    /* Temporizador */
+    #timer-view.active { display: flex; flex-direction: column; }
+    #timer-screen { text-align: center; display: flex; flex-direction: column; justify-content: space-between; height: 100%; padding-bottom: 10px; }
     
     .timer-display-container {
       position: relative;
@@ -143,7 +161,6 @@
     #btn-pause { background: #f39c12; }
     #btn-stop { background: #e74c3c; }
 
-    /* Estilo del Toast (Mensaje para presionar Atrás 2 veces) */
     #toast-msg {
       visibility: hidden;
       min-width: 250px;
@@ -163,11 +180,7 @@
       opacity: 0;
       transition: opacity 0.3s, visibility 0.3s;
     }
-
-    #toast-msg.show {
-      visibility: visible;
-      opacity: 1;
-    }
+    #toast-msg.show { visibility: visible; opacity: 1; }
 
     /* Historial */
     .history-item { background: var(--card-bg); padding: 12px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid var(--accent); }
@@ -193,35 +206,34 @@
       Tiempo Total de la Sesión: <strong id="calculated-total-time">00:00 min</strong>
     </div>
 
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-      <div class="form-group">
-        <label>Preparación (seg)</label>
-        <input type="number" id="prep-time" value="10" min="0" oninput="calculateTotalWorkoutTime()">
-      </div>
-      <div class="form-group">
-        <label>Trabajo (seg)</label>
-        <input type="number" id="work-time" value="20" min="1" oninput="calculateTotalWorkoutTime()">
-      </div>
-      <div class="form-group">
-        <label>Descanso (seg)</label>
-        <input type="number" id="rest-time" value="10" min="0" oninput="calculateTotalWorkoutTime()">
-      </div>
-      <div class="form-group">
-        <label>Series por Ejercicio</label>
-        <input type="number" id="sets-count" value="4" min="1" oninput="calculateTotalWorkoutTime()">
-      </div>
-    </div>
-
-    <hr style="border: 0.5px solid #333; margin: 10px 0;">
-
+    <!-- Parámetros para el nuevo ejercicio -->
     <div class="form-group">
-      <label>Agregar Ejercicio a la Sesión</label>
-      <div style="display: flex; gap: 5px;">
-        <input type="text" id="ex-name" placeholder="Ej: Flexiones, Sentadillas...">
-        <button onclick="addExercise()" style="padding: 0 15px; background: var(--accent); color: #fff; border: none; border-radius: 8px; font-weight: bold;">+</button>
+      <label>Nombre del Ejercicio</label>
+      <input type="text" id="ex-name" placeholder="Ej: Flexiones, Sentadillas, Burpees...">
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px;">
+      <div class="form-group">
+        <label>Prep (s)</label>
+        <input type="number" id="prep-time" value="10" min="0">
+      </div>
+      <div class="form-group">
+        <label>Trabajo (s)</label>
+        <input type="number" id="work-time" value="20" min="1">
+      </div>
+      <div class="form-group">
+        <label>Descanso (s)</label>
+        <input type="number" id="rest-time" value="10" min="0">
+      </div>
+      <div class="form-group">
+        <label>Series</label>
+        <input type="number" id="sets-count" value="4" min="1">
       </div>
     </div>
 
+    <button onclick="addExercise()" style="width: 100%; padding: 10px; background: #27ae60; color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-bottom: 15px;">+ Agregar Ejercicio a la Lista</button>
+
+    <h3 style="font-size: 0.95rem; color: #aaa; margin-bottom: 8px;">Lista de Ejercicios en la Sesión:</h3>
     <ul id="exercise-list" class="exercise-list"></ul>
 
     <button class="btn-main" onclick="startWorkout()">¡COMENZAR ENTRENAMIENTO!</button>
@@ -259,54 +271,42 @@
     <button onclick="clearHistory()" style="background: none; border: 1px solid #444; color: #888; padding: 8px; width: 100%; margin-top: 15px; border-radius: 5px;">Limpiar Historial</button>
   </div>
 
-  <!-- Contenedor del Toast Emergente -->
   <div id="toast-msg">Presiona "Atrás" nuevamente para salir</div>
 
   <script>
-    let exercises = ["Entrenamiento HIIT"];
+    // --- Estructura con parámetros independientes por ejercicio ---
+    let exercises = [
+      { name: "Flexiones", prep: 10, work: 20, rest: 10, sets: 4 },
+      { name: "Sentadillas", prep: 5, work: 30, rest: 15, sets: 3 }
+    ];
+
     let workoutState = {
-      prep: 10, work: 20, rest: 10, sets: 4,
       currentExIndex: 0, currentSet: 1, currentPhase: 'PREP',
       timeRemaining: 0, phaseTotalTime: 0, isPaused: false, timerInterval: null,
       wakeLock: null, totalDuration: 0, estimatedTotalSeconds: 0
     };
 
-    // --- Control de Pantalla Completa ---
     function enableFullscreen() {
       const elem = document.documentElement;
-      if (elem.requestFullscreen) {
-        elem.requestFullscreen().catch(() => {});
-      } else if (elem.webkitRequestFullscreen) { /* Safari / Older Android */
-        elem.webkitRequestFullscreen().catch(() => {});
-      }
+      if (elem.requestFullscreen) elem.requestFullscreen().catch(() => {});
+      else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen().catch(() => {});
     }
 
-    // --- Control del Botón Atrás de Android (Doble Toque para Salir) ---
     let backPressedOnce = false;
     let toastTimeout = null;
 
     function initBackButtonHandler() {
-      // Introducir un estado en la historia
       history.pushState({ page: 1 }, "", "");
-
-      window.addEventListener("popstate", function (event) {
+      window.addEventListener("popstate", function () {
         if (backPressedOnce) {
-          // Si presiona atrás por segunda vez dentro de los 2 segundos: salir
-          if (document.exitFullscreen && document.fullscreenElement) {
-            document.exitFullscreen();
-          }
-          window.history.back(); // Salir de la app/página
+          if (document.exitFullscreen && document.fullscreenElement) document.exitFullscreen();
+          window.history.back();
         } else {
-          // Primer toque: Bloquear la salida y mostrar notificación
           backPressedOnce = true;
-          history.pushState({ page: 1 }, "", ""); // Reinsertar estado para atrapar el siguiente toque
+          history.pushState({ page: 1 }, "", "");
           showToast();
-
-          // Resetear la bandera en 2 segundos
           clearTimeout(toastTimeout);
-          toastTimeout = setTimeout(() => {
-            backPressedOnce = false;
-          }, 2000);
+          toastTimeout = setTimeout(() => { backPressedOnce = false; }, 2000);
         }
       });
     }
@@ -314,32 +314,25 @@
     function showToast() {
       const toast = document.getElementById("toast-msg");
       toast.classList.add("show");
-      setTimeout(() => {
-        toast.classList.remove("show");
-      }, 1800);
+      setTimeout(() => { toast.classList.remove("show"); }, 1800);
     }
 
-    // Inicializar el manejo del botón atrás
     initBackButtonHandler();
 
-    // --- Auxiliar: Formatear segundos a MM:SS ---
     function formatTime(seconds) {
       const mins = Math.floor(seconds / 60);
       const secs = seconds % 60;
       return `${mins < 10 ? '0' : ''}${mins}:${secs < 10 ? '0' : ''}${secs}`;
     }
 
+    // --- Cálculo dinámico sumando los parámetros de cada ejercicio ---
     function calculateTotalWorkoutTime() {
-      const prep = parseInt(document.getElementById('prep-time').value) || 0;
-      const work = parseInt(document.getElementById('work-time').value) || 0;
-      const rest = parseInt(document.getElementById('rest-time').value) || 0;
-      const sets = parseInt(document.getElementById('sets-count').value) || 1;
-      const numExercises = exercises.length || 1;
-
-      const timePerExercise = prep + ((work + rest) * sets);
-      workoutState.estimatedTotalSeconds = timePerExercise * numExercises;
-
-      document.getElementById('calculated-total-time').textContent = `${formatTime(workoutState.estimatedTotalSeconds)} min`;
+      let totalSeconds = 0;
+      exercises.forEach(ex => {
+        totalSeconds += ex.prep + ((ex.work + ex.rest) * ex.sets);
+      });
+      workoutState.estimatedTotalSeconds = totalSeconds;
+      document.getElementById('calculated-total-time').textContent = `${formatTime(totalSeconds)} min`;
     }
 
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -377,9 +370,7 @@
 
     async function requestWakeLock() {
       try {
-        if ('wakeLock' in navigator) {
-          workoutState.wakeLock = await navigator.wakeLock.request('screen');
-        }
+        if ('wakeLock' in navigator) workoutState.wakeLock = await navigator.wakeLock.request('screen');
       } catch (err) { console.log("WakeLock error:", err); }
     }
 
@@ -403,55 +394,66 @@
       }
     }
 
+    // --- Renderizado e inclusión de Ejercicios Personalizados ---
     function renderExercises() {
       const list = document.getElementById('exercise-list');
       list.innerHTML = '';
       exercises.forEach((ex, idx) => {
         list.innerHTML += `
           <li class="exercise-item">
-            <span>${idx + 1}. ${ex}</span>
-            <button class="btn-danger" onclick="removeExercise(${idx})">✕</button>
+            <div class="exercise-header">
+              <span>${idx + 1}. ${ex.name}</span>
+              <button class="btn-danger" onclick="removeExercise(${idx})">✕</button>
+            </div>
+            <div class="exercise-params">
+              <span>Trabajo: ${ex.work}s</span>
+              <span>Descanso: ${ex.rest}s</span>
+              <span>Series: ${ex.sets}</span>
+            </div>
           </li>`;
       });
       calculateTotalWorkoutTime();
     }
 
     function addExercise() {
-      const input = document.getElementById('ex-name');
-      if (input.value.trim() !== '') {
-        if (exercises.length === 1 && exercises[0] === "Entrenamiento HIIT") exercises = [];
-        exercises.push(input.value.trim());
-        input.value = '';
-        renderExercises();
-      }
+      const nameInput = document.getElementById('ex-name');
+      const prep = parseInt(document.getElementById('prep-time').value) || 0;
+      const work = parseInt(document.getElementById('work-time').value) || 20;
+      const rest = parseInt(document.getElementById('rest-time').value) || 10;
+      const sets = parseInt(document.getElementById('sets-count').value) || 1;
+
+      const name = nameInput.value.trim() !== '' ? nameInput.value.trim() : `Ejercicio ${exercises.length + 1}`;
+
+      exercises.push({ name, prep, work, rest, sets });
+      nameInput.value = '';
+      renderExercises();
     }
 
     function removeExercise(idx) {
       exercises.splice(idx, 1);
-      if (exercises.length === 0) exercises = ["Entrenamiento HIIT"];
       renderExercises();
     }
 
+    // --- Lógica de Ejecución del Temporizador ---
     function startWorkout() {
-      // Activar pantalla completa al iniciar entrenamiento
-      enableFullscreen();
+      if (exercises.length === 0) {
+        alert("Agrega al menos un ejercicio a la lista.");
+        return;
+      }
 
-      workoutState.prep = parseInt(document.getElementById('prep-time').value) || 0;
-      workoutState.work = parseInt(document.getElementById('work-time').value) || 20;
-      workoutState.rest = parseInt(document.getElementById('rest-time').value) || 10;
-      workoutState.sets = parseInt(document.getElementById('sets-count').value) || 1;
-      
+      enableFullscreen();
       workoutState.currentExIndex = 0;
       workoutState.currentSet = 1;
       
-      if (workoutState.prep > 0) {
+      const currentEx = exercises[0];
+      if (currentEx.prep > 0) {
         workoutState.currentPhase = 'PREP';
-        workoutState.timeRemaining = workoutState.prep;
-        workoutState.phaseTotalTime = workoutState.prep;
+        workoutState.timeRemaining = currentEx.prep;
+        workoutState.phaseTotalTime = currentEx.prep;
       } else {
         workoutState.currentPhase = 'WORK';
-        workoutState.timeRemaining = workoutState.work;
-        workoutState.phaseTotalTime = workoutState.work;
+        workoutState.timeRemaining = currentEx.work;
+        workoutState.phaseTotalTime = currentEx.work;
       }
 
       workoutState.isPaused = false;
@@ -485,9 +487,10 @@
     }
 
     function checkUpcomingSound() {
-      const isLastSet = workoutState.currentSet === workoutState.sets;
+      const currentEx = exercises[workoutState.currentExIndex];
+      const isLastSet = workoutState.currentSet === currentEx.sets;
       const isRestPhase = workoutState.currentPhase === 'REST';
-      const isWorkPhaseNoRest = (workoutState.currentPhase === 'WORK' && workoutState.rest === 0);
+      const isWorkPhaseNoRest = (workoutState.currentPhase === 'WORK' && currentEx.rest === 0);
 
       if (isLastSet && (isRestPhase || isWorkPhaseNoRest)) {
         if (workoutState.currentExIndex < exercises.length - 1) {
@@ -499,15 +502,17 @@
     }
 
     function nextPhase() {
+      const currentEx = exercises[workoutState.currentExIndex];
+
       if (workoutState.currentPhase === 'PREP') {
         workoutState.currentPhase = 'WORK';
-        workoutState.timeRemaining = workoutState.work;
-        workoutState.phaseTotalTime = workoutState.work;
+        workoutState.timeRemaining = currentEx.work;
+        workoutState.phaseTotalTime = currentEx.work;
       } else if (workoutState.currentPhase === 'WORK') {
-        if (workoutState.rest > 0) {
+        if (currentEx.rest > 0) {
           workoutState.currentPhase = 'REST';
-          workoutState.timeRemaining = workoutState.rest;
-          workoutState.phaseTotalTime = workoutState.rest;
+          workoutState.timeRemaining = currentEx.rest;
+          workoutState.phaseTotalTime = currentEx.rest;
         } else {
           advanceSetOrExercise();
         }
@@ -517,23 +522,27 @@
     }
 
     function advanceSetOrExercise() {
-      if (workoutState.currentSet < workoutState.sets) {
+      const currentEx = exercises[workoutState.currentExIndex];
+
+      if (workoutState.currentSet < currentEx.sets) {
         workoutState.currentSet++;
         workoutState.currentPhase = 'WORK';
-        workoutState.timeRemaining = workoutState.work;
-        workoutState.phaseTotalTime = workoutState.work;
+        workoutState.timeRemaining = currentEx.work;
+        workoutState.phaseTotalTime = currentEx.work;
       } else {
         if (workoutState.currentExIndex < exercises.length - 1) {
           workoutState.currentExIndex++;
           workoutState.currentSet = 1;
-          if (workoutState.prep > 0) {
+          const nextEx = exercises[workoutState.currentExIndex];
+
+          if (nextEx.prep > 0) {
             workoutState.currentPhase = 'PREP';
-            workoutState.timeRemaining = workoutState.prep;
-            workoutState.phaseTotalTime = workoutState.prep;
+            workoutState.timeRemaining = nextEx.prep;
+            workoutState.phaseTotalTime = nextEx.prep;
           } else {
             workoutState.currentPhase = 'WORK';
-            workoutState.timeRemaining = workoutState.work;
-            workoutState.phaseTotalTime = workoutState.work;
+            workoutState.timeRemaining = nextEx.work;
+            workoutState.phaseTotalTime = nextEx.work;
           }
         } else {
           finishWorkout();
@@ -549,9 +558,11 @@
       const totalTimerEl = document.getElementById('total-workout-timer');
       const blurBg = document.getElementById('timer-blur-bg');
 
+      const currentEx = exercises[workoutState.currentExIndex];
+
       timeEl.textContent = workoutState.timeRemaining < 10 ? '0' + workoutState.timeRemaining : workoutState.timeRemaining;
-      exEl.textContent = exercises[workoutState.currentExIndex];
-      progEl.textContent = `Serie ${workoutState.currentSet}/${workoutState.sets} | Ejercicio ${workoutState.currentExIndex + 1}/${exercises.length}`;
+      exEl.textContent = currentEx.name;
+      progEl.textContent = `Serie ${workoutState.currentSet}/${currentEx.sets} | Ejercicio ${workoutState.currentExIndex + 1}/${exercises.length}`;
       
       totalTimerEl.textContent = `Tiempo Sesión: ${formatTime(workoutState.totalDuration)} / ${formatTime(workoutState.estimatedTotalSeconds)}`;
 
@@ -600,8 +611,8 @@
       const history = JSON.parse(localStorage.getItem('hiit_history') || '[]');
       const session = {
         date: new Date().toLocaleString('es-ES'),
-        exercises: [...exercises],
-        sets: workoutState.sets,
+        exercises: exercises.map(e => e.name),
+        sets: exercises.reduce((acc, e) => acc + e.sets, 0),
         duration: formatTime(workoutState.totalDuration)
       };
       history.unshift(session);
@@ -621,7 +632,7 @@
         <div class="history-item">
           <div class="history-date">${item.date}</div>
           <div class="history-title">${item.exercises.join(', ')}</div>
-          <div style="font-size:0.85rem; color:#aaa;">${item.sets} series por ejercicio | Duración: ${item.duration} min</div>
+          <div style="font-size:0.85rem; color:#aaa;">Total series: ${item.sets} | Duración: ${item.duration} min</div>
         </div>
       `).join('');
     }
