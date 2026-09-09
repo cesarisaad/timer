@@ -1,28 +1,28 @@
-const CACHE_NAME = 'tabata-timer-v2';
+// Cambia la versión del caché a v3 para forzar la actualización
+const CACHE_NAME = 'tabata-timer-v3'; 
+
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './manifest.json'
 ];
 
-// Instalación del Service Worker y almacenamiento en caché
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(ASSETS_TO_CACHE);
     })
   );
-  self.skipWaiting();
+  self.skipWaiting(); // Forzar la activación inmediata
 });
 
-// Activación y limpieza de cachés antiguas
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((keys) => {
+    caches.keys().then((cacheNames) => {
       return Promise.all(
-        keys.map((key) => {
-          if (key !== CACHE_NAME) {
-            return caches.delete(key);
+        cacheNames.map((cache) => {
+          if (cache !== CACHE_NAME) {
+            return caches.delete(cache); // Borrar la versión vieja
           }
         })
       );
@@ -31,11 +31,10 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Interceptar peticiones para servir desde el caché si está offline
 self.addEventListener('fetch', (event) => {
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      return cachedResponse || fetch(event.request);
+    caches.match(event.request).then((response) => {
+      return response || fetch(event.request);
     })
   );
 });
