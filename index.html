@@ -6,11 +6,10 @@
   <title>HIIT & Tabata Pro Timer</title>
   <meta name="theme-color" content="#000000">
 
-  <!-- Favicon e Ícono de App Naranja/Negro -->
+  <!-- Favicon e Ícono de App -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%23121212'/><path d='M100 210 h40 v92 h-40 z M372 210 h40 v92 h-40 z M140 230 h30 v52 h-30 z M342 230 h30 v52 h-30 z M170 246 h172 v20 h-172 z' fill='%23f39c12'/></svg>">
   <link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%23121212'/><path d='M100 210 h40 v92 h-40 z M372 210 h40 v92 h-40 z M140 230 h30 v52 h-30 z M342 230 h30 v52 h-30 z M170 246 h172 v20 h-172 z' fill='%23f39c12'/></svg>">
 
-  <!-- Web App Manifest -->
   <link rel="manifest" href="data:application/manifest+json,{
     %22name%22:%22Tabata%20Pro%20Timer%22,
     %22short_name%22:%22TabataTimer%22,
@@ -38,151 +37,56 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    
-    body { 
-      background-color: var(--bg-color); 
-      color: var(--text-color); 
-      display: flex; 
-      flex-direction: column; 
-      height: 100vh;
-      height: 100dvh;
-      overflow: hidden; 
-      padding-bottom: env(safe-area-inset-bottom, 20px);
-    }
-    
-    header { background: #000; padding: 12px; text-align: center; border-bottom: 1px solid #333; z-index: 10; }
-    h1 { font-size: 1.3rem; color: var(--accent); letter-spacing: 1px; }
+    body { background-color: var(--bg-color); color: var(--text-color); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
 
-    nav { display: flex; background: #000; border-bottom: 1px solid #333; z-index: 10; }
-    nav button { flex: 1; padding: 12px; background: none; border: none; color: #888; font-weight: bold; font-size: 0.9rem; cursor: pointer; }
-    nav button.active { color: var(--accent); border-bottom: 3px solid var(--accent); }
+    header { background: #000; padding: 12px; text-align: center; border-bottom: 1px solid #333; }
+    header h1 { font-size: 1.1rem; letter-spacing: 1px; color: var(--prep-color); }
 
-    .view { display: none; padding: 15px; flex: 1; z-index: 2; overflow-y: auto; }
+    nav { display: flex; background: #1a1a1a; border-bottom: 1px solid #333; }
+    nav button { flex: 1; padding: 10px; background: none; border: none; color: #888; font-weight: bold; font-size: 0.85rem; cursor: pointer; }
+    nav button.active { color: var(--accent); border-bottom: 2px solid var(--accent); background: #222; }
+
+    .view { display: none; padding: 12px; overflow-y: auto; height: calc(100vh - 90px); }
     .view.active { display: block; }
 
-    .form-group { margin-bottom: 12px; }
-    label { display: block; margin-bottom: 5px; font-size: 0.85rem; color: #aaa; }
-    input[type="number"], input[type="text"] { width: 100%; padding: 10px; background: var(--card-bg); border: 1px solid #333; border-radius: 8px; color: #fff; font-size: 1rem; }
+    .form-group { margin-bottom: 10px; }
+    label { display: block; margin-bottom: 4px; font-size: 0.8rem; color: #aaa; }
+    input[type="number"], input[type="text"], select { width: 100%; padding: 10px; background: var(--card-bg); border: 1px solid #333; border-radius: 8px; color: #fff; font-size: 0.95rem; }
 
-    .total-time-badge {
-      background: #2a2a2a;
-      border: 1px solid var(--accent);
-      border-radius: 8px;
-      padding: 10px;
-      text-align: center;
-      margin-bottom: 12px;
-      font-size: 0.95rem;
-      color: #fff;
-    }
-    .total-time-badge strong { color: var(--accent); font-size: 1.1rem; }
+    .preset-card { background: #181818; border: 1px solid #333; border-radius: 8px; padding: 10px; margin-bottom: 12px; }
+    .preset-actions { display: flex; gap: 6px; margin-top: 8px; }
 
-    .exercise-list { margin-top: 10px; list-style: none; }
-    .exercise-item { 
-      background: var(--card-bg); 
-      padding: 12px; 
-      border-radius: 8px; 
-      margin-bottom: 10px; 
-      border-left: 3px solid var(--accent);
-    }
-    .exercise-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-weight: bold;
-      margin-bottom: 8px;
-      color: #fff;
-    }
-    .exercise-params {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 5px;
-      font-size: 0.8rem;
-      color: #aaa;
-    }
-    .exercise-params span {
-      background: #121212;
-      padding: 4px 6px;
-      border-radius: 4px;
-      text-align: center;
-    }
+    .total-time-badge { background: #2a2a2a; border: 1px solid var(--accent); border-radius: 8px; padding: 8px; text-align: center; margin-bottom: 10px; font-size: 0.9rem; }
+    .total-time-badge strong { color: var(--accent); font-size: 1rem; }
 
-    .btn-danger { background: #c0392b; color: #fff; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
+    .exercise-list { margin-top: 8px; list-style: none; }
+    .exercise-item { background: var(--card-bg); padding: 10px; border-radius: 8px; margin-bottom: 8px; border-left: 3px solid var(--accent); }
+    .exercise-header { display: flex; justify-content: space-between; align-items: center; font-weight: bold; margin-bottom: 6px; }
+    .exercise-params { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px; font-size: 0.75rem; color: #aaa; }
+    .exercise-params span { background: #121212; padding: 4px; border-radius: 4px; text-align: center; }
+
+    .btn-danger { background: #c0392b; color: #fff; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; }
     .btn-main { width: 100%; padding: 14px; background: var(--accent); color: #fff; border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
 
-    #timer-view.active { display: flex; flex-direction: column; }
     #timer-screen { text-align: center; display: flex; flex-direction: column; justify-content: space-between; height: 100%; padding-bottom: 10px; }
-    
-    .timer-display-container {
-      position: relative;
-      margin: 5px auto;
-      width: 230px;
-      height: 230px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-      background: rgba(0, 0, 0, 0.4);
-      box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
-      overflow: hidden;
-    }
+    .timer-display-container { position: relative; margin: 10px auto; width: 240px; height: 240px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: rgba(0, 0, 0, 0.4); box-shadow: inset 0 0 20px rgba(0,0,0,0.8); overflow: hidden; }
+    #timer-blur-bg { position: absolute; bottom: 0; left: 0; width: 100%; height: 0%; background: var(--prep-color); filter: blur(25px); opacity: 0.85; transition: height 0.3s ease-out, background-color 0.5s ease; z-index: 1; }
+    #time-display { font-size: 5.5rem; font-weight: 800; font-family: monospace; line-height: 1; position: relative; z-index: 2; text-shadow: 0 4px 10px rgba(0,0,0,0.9); }
 
-    #timer-blur-bg {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 0%;
-      background: var(--prep-color);
-      filter: blur(25px);
-      opacity: 0.85;
-      transition: height 0.3s ease-out, background-color 0.5s ease;
-      z-index: 1;
-    }
+    #phase-display { font-size: 1.8rem; font-weight: bold; text-transform: uppercase; margin-top: 5px; }
+    #exercise-display { font-size: 1.2rem; color: #eee; }
+    #progress-display { font-size: 0.95rem; color: #aaa; }
+    #total-workout-timer { font-size: 0.85rem; color: #888; }
 
-    #time-display { 
-      font-size: 5.5rem; 
-      font-weight: 800; 
-      font-family: monospace; 
-      line-height: 1; 
-      position: relative; 
-      z-index: 2; 
-      text-shadow: 0 4px 10px rgba(0,0,0,0.9);
-    }
-
-    #phase-display { font-size: 1.8rem; font-weight: bold; text-transform: uppercase; margin-top: 5px; text-shadow: 0 2px 5px rgba(0,0,0,0.8); }
-    #exercise-display { font-size: 1.3rem; color: #eee; margin-top: 2px; }
-    #progress-display { font-size: 1rem; color: #aaa; }
-    #total-workout-timer { font-size: 0.85rem; color: #888; margin-top: 2px; }
-
-    .timer-controls { display: flex; gap: 10px; margin-top: 10px; padding-bottom: 5px; }
-    .timer-controls button { flex: 1; padding: 14px; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; color: #fff; cursor: pointer; }
+    .timer-controls { display: flex; gap: 10px; margin-top: 8px; }
+    .timer-controls button { flex: 1; padding: 12px; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; color: #fff; cursor: pointer; }
     #btn-pause { background: #f39c12; }
     #btn-stop { background: #e74c3c; }
 
-    #toast-msg {
-      visibility: hidden;
-      min-width: 250px;
-      background-color: #333;
-      color: #fff;
-      text-align: center;
-      border-radius: 25px;
-      padding: 12px 20px;
-      position: fixed;
-      z-index: 1000;
-      left: 50%;
-      bottom: 50px;
-      transform: translateX(-50%);
-      font-size: 0.9rem;
-      border: 1px solid #555;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-      opacity: 0;
-      transition: opacity 0.3s, visibility 0.3s;
-    }
+    #toast-msg { visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 25px; padding: 10px 18px; position: fixed; z-index: 1000; left: 50%; bottom: 40px; transform: translateX(-50%); font-size: 0.85rem; border: 1px solid #555; opacity: 0; transition: opacity 0.3s, visibility 0.3s; }
     #toast-msg.show { visibility: visible; opacity: 1; }
 
     .history-item { background: var(--card-bg); padding: 12px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid var(--accent); }
-    .history-date { font-size: 0.8rem; color: #888; }
-    .history-title { font-weight: bold; margin: 5px 0; }
   </style>
 </head>
 <body>
@@ -199,37 +103,39 @@
 
   <!-- Vista 1: Configuración -->
   <div id="config-view" class="view active">
+    
+    <!-- Módulo de Presets Guardados -->
+    <div class="preset-card">
+      <label><strong>Rutinas Guardadas (Presets):</strong></label>
+      <select id="preset-selector" onchange="loadSelectedPreset()">
+        <option value="">-- Seleccionar o cargar rutina --</option>
+      </select>
+      <div class="preset-actions">
+        <input type="text" id="preset-name" placeholder="Nombre de la rutina...">
+        <button onclick="saveCurrentPreset()" style="padding: 8px 12px; background: #2980b9; color: #fff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; white-space: nowrap;">Guardar/Editar</button>
+        <button onclick="deleteSelectedPreset()" class="btn-danger" style="border-radius: 6px;">Eliminar</button>
+      </div>
+    </div>
+
     <div class="total-time-badge">
       Tiempo Total de la Sesión: <strong id="calculated-total-time">00:00 min</strong>
     </div>
 
     <div class="form-group">
       <label>Nombre del Ejercicio</label>
-      <input type="text" id="ex-name" placeholder="Ej: Flexiones, Sentadillas, Burpees...">
+      <input type="text" id="ex-name" placeholder="Ej: Flexiones, Sentadillas...">
     </div>
 
-    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px;">
-      <div class="form-group">
-        <label>Prep. (s)</label>
-        <input type="number" id="prep-time" value="10" min="0">
-      </div>
-      <div class="form-group">
-        <label>Trabajo (s)</label>
-        <input type="number" id="work-time" value="20" min="1">
-      </div>
-      <div class="form-group">
-        <label>Desc. (s)</label>
-        <input type="number" id="rest-time" value="10" min="0">
-      </div>
-      <div class="form-group">
-        <label>Series</label>
-        <input type="number" id="sets-count" value="4" min="1">
-      </div>
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 6px;">
+      <div class="form-group"><label>Prep(s)</label><input type="number" id="prep-time" value="10" min="0"></div>
+      <div class="form-group"><label>Trabajo</label><input type="number" id="work-time" value="20" min="1"></div>
+      <div class="form-group"><label>Descanso</label><input type="number" id="rest-time" value="10" min="0"></div>
+      <div class="form-group"><label>Series</label><input type="number" id="sets-count" value="4" min="1"></div>
     </div>
 
-    <button onclick="addExercise()" style="width: 100%; padding: 10px; background: #27ae60; color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-bottom: 15px;">+ Agregar Ejercicio a la Lista</button>
+    <button onclick="addExercise()" style="width: 100%; padding: 10px; background: #27ae60; color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-bottom: 12px;">+ Agregar Ejercicio</button>
 
-    <h3 style="font-size: 0.95rem; color: #aaa; margin-bottom: 8px;">Lista de Ejercicios en la Sesión:</h3>
+    <h3 style="font-size: 0.85rem; color: #aaa; margin-bottom: 6px;">Lista de Ejercicios en la Sesión:</h3>
     <ul id="exercise-list" class="exercise-list"></ul>
 
     <button class="btn-main" onclick="startWorkout()">¡COMENZAR ENTRENAMIENTO!</button>
@@ -262,9 +168,9 @@
 
   <!-- Vista 3: Historial -->
   <div id="history-view" class="view">
-    <h3 style="margin-bottom: 15px;">Sesiones Recientes</h3>
+    <h3 style="margin-bottom: 12px;">Sesiones Recientes</h3>
     <div id="history-container"></div>
-    <button onclick="clearHistory()" style="background: none; border: 1px solid #444; color: #888; padding: 8px; width: 100%; margin-top: 15px; border-radius: 5px;">Limpiar Historial</button>
+    <button onclick="clearHistory()" style="background: none; border: 1px solid #444; color: #888; padding: 8px; width: 100%; margin-top: 12px; border-radius: 5px;">Limpiar Historial</button>
   </div>
 
   <div id="toast-msg">Presiona "Atrás" nuevamente para salir</div>
@@ -287,21 +193,17 @@
       else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen().catch(() => {});
     }
 
-    let backPressedOnce = false;
-    let toastTimeout = null;
-
     function initBackButtonHandler() {
+      let lastBackPress = 0;
       history.pushState({ page: 1 }, "", "");
-      window.addEventListener("popstate", function () {
-        if (backPressedOnce) {
-          if (document.exitFullscreen && document.fullscreenElement) document.exitFullscreen();
-          window.history.back();
+      window.addEventListener('popstate', function (event) {
+        const now = new Date().getTime();
+        if (now - lastBackPress < 2000) {
+          navigator.app ? navigator.app.exitApp() : window.history.back();
         } else {
-          backPressedOnce = true;
-          history.pushState({ page: 1 }, "", "");
+          lastBackPress = now;
           showToast();
-          clearTimeout(toastTimeout);
-          toastTimeout = setTimeout(() => { backPressedOnce = false; }, 2000);
+          history.pushState({ page: 1 }, "", "");
         }
       });
     }
@@ -329,12 +231,69 @@
       document.getElementById('calculated-total-time').textContent = `${formatTime(totalSeconds)} min`;
     }
 
+    // --- Sistema de Presets ---
+    function getStoredPresets() {
+      return JSON.parse(localStorage.getItem('hiit_presets') || '{}');
+    }
+
+    function renderPresetSelector() {
+      const presets = getStoredPresets();
+      const selector = document.getElementById('preset-selector');
+      selector.innerHTML = '<option value="">-- Seleccionar rutina guardada --</option>';
+      Object.keys(presets).forEach(name => {
+        selector.innerHTML += `<option value="${name}">${name}</option>`;
+      });
+    }
+
+    function saveCurrentPreset() {
+      const nameInput = document.getElementById('preset-name');
+      const name = nameInput.value.trim();
+      if (!name) { alert("Ingresa un nombre para la rutina."); return; }
+      if (exercises.length === 0) { alert("Agrega al menos un ejercicio antes de guardar."); return; }
+
+      const presets = getStoredPresets();
+      presets[name] = [...exercises];
+      localStorage.setItem('hiit_presets', JSON.stringify(presets));
+      renderPresetSelector();
+      document.getElementById('preset-selector').value = name;
+      alert(`Rutina "${name}" guardada/actualizada correctamente.`);
+    }
+
+    function loadSelectedPreset() {
+      const selector = document.getElementById('preset-selector');
+      const selected = selector.value;
+      if (!selected) return;
+
+      const presets = getStoredPresets();
+      if (presets[selected]) {
+        exercises = [...presets[selected]];
+        document.getElementById('preset-name').value = selected; // Coloca el nombre en el cuadro de texto para editar fácilmente
+        renderExercises();
+      }
+    }
+
+    function deleteSelectedPreset() {
+      const selector = document.getElementById('preset-selector');
+      const selected = selector.value;
+      if (!selected) { alert("Selecciona una rutina para eliminar."); return; }
+
+      if (confirm(`¿Eliminar la rutina "${selected}"?`)) {
+        const presets = getStoredPresets();
+        delete presets[selected];
+        localStorage.setItem('hiit_presets', JSON.stringify(presets));
+        document.getElementById('preset-name').value = '';
+        renderPresetSelector();
+      }
+    }
+
+    // --- Audio System ---
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     
-    function playBeep(freq = 440, duration = 0.15) {
+    function playBeep(freq = 440, duration = 0.12) {
       if (audioCtx.state === 'suspended') audioCtx.resume();
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
+      osc.type = 'sine';
       osc.frequency.value = freq;
       osc.connect(gain);
       gain.connect(audioCtx.destination);
@@ -345,47 +304,28 @@
 
     function playChime() {
       if (audioCtx.state === 'suspended') audioCtx.resume();
-      
-      const chord = [
-        { freq: 523.25, time: 0 },
-        { freq: 659.25, time: 0.15 },
-        { freq: 783.99, time: 0.30 },
-        { freq: 1046.50, time: 0.45 }
-      ];
-
-      chord.forEach(note => {
+      const notes = [523.25, 659.25, 783.99, 1046.50];
+      notes.forEach((freq, idx) => {
         setTimeout(() => {
           const osc = audioCtx.createOscillator();
           const gain = audioCtx.createGain();
           osc.type = 'triangle';
-          osc.frequency.value = note.freq;
-          
-          gain.gain.setValueAtTime(0.8, audioCtx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.8);
-          
+          osc.frequency.value = freq;
+          gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.5);
           osc.connect(gain);
           gain.connect(audioCtx.destination);
           osc.start();
-          osc.stop(audioCtx.currentTime + 0.8);
-
-          const harmonic = audioCtx.createOscillator();
-          const harmGain = audioCtx.createGain();
-          harmonic.type = 'sine';
-          harmonic.frequency.value = note.freq * 2;
-          harmGain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-          harmGain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.4);
-          harmonic.connect(harmGain);
-          harmGain.connect(audioCtx.destination);
-          harmonic.start();
-          harmonic.stop(audioCtx.currentTime + 0.4);
-
-        }, note.time * 1000);
+          osc.stop(audioCtx.currentTime + 0.5);
+        }, idx * 120);
       });
     }
 
     async function requestWakeLock() {
       try {
-        if ('wakeLock' in navigator) workoutState.wakeLock = await navigator.wakeLock.request('screen');
+        if ('wakeLock' in navigator) {
+          workoutState.wakeLock = await navigator.wakeLock.request('screen');
+        }
       } catch (err) { console.log("WakeLock error:", err); }
     }
 
@@ -448,7 +388,6 @@
       renderExercises();
     }
 
-    // --- Reseteo de Pantalla y Estado del Reloj ---
     function resetTimerScreen() {
       if (workoutState.timerInterval) {
         clearInterval(workoutState.timerInterval);
@@ -668,8 +607,8 @@
 
       container.innerHTML = history.map(item => `
         <div class="history-item">
-          <div class="history-date">${item.date}</div>
-          <div class="history-title">${item.exercises.join(', ')}</div>
+          <div style="font-size:0.8rem; color:#888;">${item.date}</div>
+          <div style="font-weight:bold; margin:5px 0;">${item.exercises.join(', ')}</div>
           <div style="font-size:0.85rem; color:#aaa;">Total series: ${item.sets} | Duración: ${item.duration} min</div>
         </div>
       `).join('');
@@ -682,6 +621,7 @@
       }
     }
 
+    renderPresetSelector();
     renderExercises();
     resetTimerScreen();
   </script>
