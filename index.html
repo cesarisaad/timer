@@ -8,7 +8,7 @@
 
   <!-- Favicon e Ícono de App Naranja/Negro -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%23121212'/><path d='M100 210 h40 v92 h-40 z M372 210 h40 v92 h-40 z M140 230 h30 v52 h-30 z M342 230 h30 v52 h-30 z M170 246 h172 v20 h-172 z' fill='%23f39c12'/></svg>">
-  <link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%23121212'/><path d='M100 210 h40 v92 h-40 z M372 210 h40 v92 h-40 z M140 230 h30 v52 h-40 z M342 230 h30 v52 h-30 z M170 246 h172 v20 h-172 z' fill='%23f39c12'/></svg>">
+  <link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%23121212'/><path d='M100 210 h40 v92 h-40 z M372 210 h40 v92 h-40 z M140 230 h30 v52 h-30 z M342 230 h30 v52 h-30 z M170 246 h172 v20 h-172 z' fill='%23f39c12'/></svg>">
 
   <!-- Web App Manifest -->
   <link rel="manifest" href="data:application/manifest+json,{
@@ -210,7 +210,7 @@
 
     <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px;">
       <div class="form-group">
-        <label>Prep (s)</label>
+        <label>Prep. (s)</label>
         <input type="number" id="prep-time" value="10" min="0">
       </div>
       <div class="form-group">
@@ -218,7 +218,7 @@
         <input type="number" id="work-time" value="20" min="1">
       </div>
       <div class="form-group">
-        <label>Descanso (s)</label>
+        <label>Desc. (s)</label>
         <input type="number" id="rest-time" value="10" min="0">
       </div>
       <div class="form-group">
@@ -249,7 +249,7 @@
       </div>
 
       <div>
-        <div id="progress-display">Serie 1/4 | Ejercicio 1/1</div>
+        <div id="progress-display">Serie 0/0 | Ejercicio 0/0</div>
         <div id="total-workout-timer">Tiempo Sesión: 00:00 / 00:00</div>
         
         <div class="timer-controls">
@@ -331,7 +331,6 @@
 
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     
-    // Pitido estándar para conteo regresivo
     function playBeep(freq = 440, duration = 0.15) {
       if (audioCtx.state === 'suspended') audioCtx.resume();
       const osc = audioCtx.createOscillator();
@@ -344,26 +343,24 @@
       osc.stop(audioCtx.currentTime + duration);
     }
 
-    // Campanilla potente y resonante (Do-Mi-Sol con octava superior armónica)
     function playChime() {
       if (audioCtx.state === 'suspended') audioCtx.resume();
       
       const chord = [
-        { freq: 523.25, time: 0 },    // Do5
-        { freq: 659.25, time: 0.15 }, // Mi5
-        { freq: 783.99, time: 0.30 }, // Sol5
-        { freq: 1046.50, time: 0.45 } // Do6 (Octava alta resonante)
+        { freq: 523.25, time: 0 },
+        { freq: 659.25, time: 0.15 },
+        { freq: 783.99, time: 0.30 },
+        { freq: 1046.50, time: 0.45 }
       ];
 
       chord.forEach(note => {
         setTimeout(() => {
-          // Fundamental
           const osc = audioCtx.createOscillator();
           const gain = audioCtx.createGain();
-          osc.type = 'triangle'; // Onda más rica y resonante que la seno
+          osc.type = 'triangle';
           osc.frequency.value = note.freq;
           
-          gain.gain.setValueAtTime(0.8, audioCtx.currentTime); // Volumen alto (80%)
+          gain.gain.setValueAtTime(0.8, audioCtx.currentTime);
           gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.8);
           
           osc.connect(gain);
@@ -371,7 +368,6 @@
           osc.start();
           osc.stop(audioCtx.currentTime + 0.8);
 
-          // Armónico agudo secundario para efecto campana metalizada
           const harmonic = audioCtx.createOscillator();
           const harmGain = audioCtx.createGain();
           harmonic.type = 'sine';
@@ -452,6 +448,31 @@
       renderExercises();
     }
 
+    // --- Reseteo de Pantalla y Estado del Reloj ---
+    function resetTimerScreen() {
+      if (workoutState.timerInterval) {
+        clearInterval(workoutState.timerInterval);
+        workoutState.timerInterval = null;
+      }
+      releaseWakeLock();
+
+      workoutState.timeRemaining = 0;
+      workoutState.phaseTotalTime = 0;
+      workoutState.totalDuration = 0;
+      workoutState.currentExIndex = 0;
+      workoutState.currentSet = 1;
+      workoutState.isPaused = false;
+
+      document.getElementById('time-display').textContent = '00';
+      document.getElementById('phase-display').textContent = 'PREPARADOS';
+      document.getElementById('phase-display').style.color = 'var(--prep-color)';
+      document.getElementById('exercise-display').textContent = 'Listo para empezar';
+      document.getElementById('progress-display').textContent = 'Serie 0/0 | Ejercicio 0/0';
+      document.getElementById('total-workout-timer').textContent = 'Tiempo Sesión: 00:00 / 00:00';
+      document.getElementById('timer-blur-bg').style.height = '0%';
+      document.getElementById('btn-pause').textContent = 'Pausar';
+    }
+
     function startWorkout() {
       if (exercises.length === 0) {
         alert("Agrega al menos un ejercicio a la lista.");
@@ -489,11 +510,10 @@
 
       workoutState.totalDuration++;
 
-      // --- Conteo regresivo sonoro ajustado de 5 a 1 segundos ---
       if (workoutState.timeRemaining <= 5 && workoutState.timeRemaining > 1) {
-        playBeep(440, 0.12); // Pitido de aviso
+        playBeep(440, 0.12);
       } else if (workoutState.timeRemaining === 1) {
-        checkUpcomingSound(); // Pitido agudo o campanilla potente al cambiar de ejercicio
+        checkUpcomingSound();
       }
 
       if (workoutState.timeRemaining > 1) {
@@ -512,11 +532,11 @@
 
       if (isLastSet && (isRestPhase || isWorkPhaseNoRest)) {
         if (workoutState.currentExIndex < exercises.length - 1) {
-          playChime(); // Campanilla potente de cambio de ejercicio
+          playChime();
           return;
         }
       }
-      playBeep(880, 0.35); // Pitido agudo estándar para cambio de fase/serie
+      playBeep(880, 0.35);
     }
 
     function nextPhase() {
@@ -610,19 +630,19 @@
 
     function stopWorkout() {
       if (confirm("¿Deseas cancelar la sesión actual?")) {
-        clearInterval(workoutState.timerInterval);
-        releaseWakeLock();
+        resetTimerScreen();
         switchView('config-view');
       }
     }
 
     function finishWorkout() {
-      clearInterval(workoutState.timerInterval);
-      releaseWakeLock();
       playChime();
-      setTimeout(() => alert("¡Entrenamiento Completado! Excelente trabajo."), 300);
       saveHistory();
-      switchView('history-view');
+      setTimeout(() => {
+        alert("¡Entrenamiento Completado! Excelente trabajo.");
+        resetTimerScreen();
+        switchView('history-view');
+      }, 300);
     }
 
     function saveHistory() {
@@ -663,6 +683,7 @@
     }
 
     renderExercises();
+    resetTimerScreen();
   </script>
 </body>
 </html>
