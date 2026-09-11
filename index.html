@@ -407,20 +407,41 @@
 
     function playChime() {
       if (audioCtx.state === 'suspended') audioCtx.resume();
-      const notes = [523.25, 659.25, 783.99, 1046.50];
-      notes.forEach((freq, idx) => {
+      
+      // Tres golpes de campana con separación de 180ms entre cada "ding"
+      const strikeDelays = [0, 180, 360]; 
+    
+      strikeDelays.forEach((delay) => {
         setTimeout(() => {
-          const osc = audioCtx.createOscillator();
-          const gain = audioCtx.createGain();
-          osc.type = 'triangle';
-          osc.frequency.value = freq;
-          gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.5);
-          osc.connect(gain);
-          gain.connect(audioCtx.destination);
-          osc.start();
-          osc.stop(audioCtx.currentTime + 0.5);
-        }, idx * 120);
+          // 1. Tono principal metalizado (Frecuencia aguda de campana: 1200 Hz)
+          const mainOsc = audioCtx.createOscillator();
+          const mainGain = audioCtx.createGain();
+          mainOsc.type = 'sine';
+          mainOsc.frequency.value = 1200;
+    
+          mainGain.gain.setValueAtTime(0.8, audioCtx.currentTime);
+          mainGain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.6);
+    
+          mainOsc.connect(mainGain);
+          mainGain.connect(audioCtx.destination);
+          mainOsc.start();
+          mainOsc.stop(audioCtx.currentTime + 0.6);
+    
+          // 2. Armónico agudo secundario (Doble frecuencia para simular el brillo del metal)
+          const harmOsc = audioCtx.createOscillator();
+          const harmGain = audioCtx.createGain();
+          harmOsc.type = 'sine';
+          harmOsc.frequency.value = 2400;
+    
+          harmGain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+          harmGain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.3);
+    
+          harmOsc.connect(harmGain);
+          harmGain.connect(audioCtx.destination);
+          harmOsc.start();
+          harmOsc.stop(audioCtx.currentTime + 0.3);
+    
+        }, delay);
       });
     }
 
