@@ -1,5 +1,5 @@
-// Cambia la versión del caché a v3 para forzar la actualización
-const CACHE_NAME = 'tabata-timer-v4'; 
+// Cambia la versión del caché a v4.1 para forzar la actualización
+const CACHE_NAME = 'tabata-timer-v4.1'; 
 
 const ASSETS_TO_CACHE = [
   './',
@@ -18,17 +18,16 @@ self.addEventListener('install', (event) => {
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
+    caches.keys().then((keys) => {
       return Promise.all(
-        cacheNames.map((cache) => {
-          if (cache !== CACHE_NAME) {
-            return caches.delete(cache); // Borrar la versión vieja
+        keys.map((key) => {
+          if (key !== CACHE_NAME) {
+            return caches.delete(key); // Borra únicamente el caché de archivos estáticos (HTML/CSS/JS)
           }
         })
       );
-    })
+    }).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
 self.addEventListener('fetch', (event) => {
