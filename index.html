@@ -115,7 +115,7 @@
 
   <nav>
     <button id="nav-config" class="active" onclick="switchView('config-view')">Configurar</button>
-    <button id="nav-timer" onclick="switchView('timer-view')">Reloj</button>
+    <button id="nav-timer" onclick="switchView('timer-view')">Timer</button>
     <button id="nav-history" onclick="switchView('history-view')">Historial</button>
   </nav>
 
@@ -130,14 +130,24 @@
       </select>
       <div class="preset-actions">
         <input type="text" id="preset-name" placeholder="Nombre de la rutina...">
-        <button onclick="saveCurrentPreset()" style="padding: 8px 12px; background: #2980b9; color: #fff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; white-space: nowrap;">Guardar/Editar</button>
-        <button onclick="deleteSelectedPreset()" class="btn-danger" style="border-radius: 6px;">Eliminar</button>
+        <button onclick="saveCurrentPreset()" style="padding: 8px 12px; background: #2980b9; color: #fff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; white-space: nowrap;">Save/Edit</button>
+        <button onclick="deleteSelectedPreset()" class="btn-danger" style="border-radius: 6px;">Delete</button>
       </div>
-      <div class="preset-actions" style="margin-top: 10px; border-top: 1px solid #333; padding-top: 8px;">
-        <button onclick="exportPresets()" style="padding: 6px 10px; background: #27ae60; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 0.8rem; flex: 1;">📥 Exportar Copia</button>
-        <label for="import-file" style="padding: 6px 10px; background: #8e44ad; color: #fff; border-radius: 6px; cursor: pointer; font-size: 0.8rem; text-align: center; flex: 1;">📤 Importar Copia</label>
+
+      <div class="preset-actions" style="display: flex; gap: 8px; margin-top: 10px; border-top: 1px solid #333; padding-top: 8px;">
+        <button onclick="exportPresets()" style="padding: 6px 10px; background: #27ae60; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 0.8rem; flex: 1; display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; font-family: inherit;">📥 Export</button>
+        <label for="import-file" style="padding: 6px 10px; background: #8e44ad; color: #fff; border-radius: 6px; cursor: pointer; font-size: 0.8rem; text-align: center; flex: 1; display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; font-family: inherit;">📤 Import</label>
         <input type="file" id="import-file" accept=".json" onchange="importPresets(event)" style="display: none;">
       </div>
+      
+      <!--
+      <div class="preset-actions" style="margin-top: 10px; border-top: 1px solid #333; padding-top: 8px;">
+        <button onclick="exportPresets()" style="padding: 6px 10px; background: #27ae60; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 0.8rem; flex: 1;">📥 Export</button>
+        <label for="import-file" style="padding: 6px 10px; background: #8e44ad; color: #fff; border-radius: 6px; cursor: pointer; font-size: 0.8rem; text-align: center; flex: 1;">📤 Import</label>
+        <input type="file" id="import-file" accept=".json" onchange="importPresets(event)" style="display: none;">
+      </div>
+      -->
+      
     </div>
 
     <div class="total-time-badge">
