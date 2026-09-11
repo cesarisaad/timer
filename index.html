@@ -176,7 +176,13 @@
 
   <!-- Vista 2: Temporizador -->
   <div id="timer-view" class="view">
-    <div id="timer-screen">
+    <div id="timer-screen" style="position: relative;">
+
+      <!-- Botón de reactivación de Pantalla Completa (Flotante) -->
+      <button id="btn-re-fullscreen" onclick="enableFullscreen()" style="display: none; position: absolute; top: 0; right: 0; background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.3); color: #fff; padding: 6px 10px; border-radius: 20px; font-size: 0.75rem; z-index: 20; backdrop-filter: blur(4px); cursor: pointer;">
+        ⛶ Pantalla Completa
+      </button>
+      
       <div>
         <div id="phase-display">PREPARADOS</div>
         <div id="exercise-display">Ejercicio</div>
@@ -224,10 +230,30 @@
 
     function enableFullscreen() {
       const elem = document.documentElement;
-      if (elem.requestFullscreen) elem.requestFullscreen().catch(() => {});
-      else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen().catch(() => {});
+      if (elem.requestFullscreen) {
+        elem.requestFullscreen().then(() => requestWakeLock()).catch(() => {});
+      } else if (elem.webkitRequestFullscreen) {
+        elem.webkitRequestFullscreen().then(() => requestWakeLock()).catch(() => {});
+      }
     }
 
+    // Detectar cambios en el estado de Pantalla Completa
+    function checkFullscreenStatus() {
+      const isFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement);
+      const btnReFS = document.getElementById('btn-re-fullscreen');
+      
+      // Si estamos en la vista de reloj y NO está en pantalla completa, mostramos el botón
+      const isTimerView = document.getElementById('timer-view').classList.contains('active');
+      
+      if (btnReFS) {
+        btnReFS.style.display = (isTimerView && !isFullscreen) ? 'block' : 'none';
+      }
+    }
+    
+    // Escuchadores nativos del sistema
+    document.addEventListener('fullscreenchange', checkFullscreenStatus);
+    document.addEventListener('webkitfullscreenchange', checkFullscreenStatus);
+        
     function initBackButtonHandler() {
       let lastBackPress = 0;
       history.pushState({ page: 1 }, "", "");
