@@ -409,7 +409,7 @@
       if (audioCtx.state === 'suspended') audioCtx.resume();
       
       // Tres golpes de campana con separación de 180ms entre cada "ding"
-      const strikeDelays = [0, 180, 360]; 
+      const strikeDelays = [0, 300, 600]; 
     
       strikeDelays.forEach((delay) => {
         setTimeout(() => {
