@@ -227,7 +227,8 @@
     };
 
     let editingExerciseIndex = null;
-
+    let isFinishing = false; // Bandera para evitar doble alerta
+    
     function enableFullscreen() {
       const elem = document.documentElement;
       if (elem.requestFullscreen) {
@@ -607,7 +608,8 @@
         workoutState.timerInterval = null;
       }
       releaseWakeLock();
-
+      
+      isFinishing = false; // Restablecer el seguro
       workoutState.timeRemaining = 0;
       workoutState.phaseTotalTime = 0;
       workoutState.totalDuration = 0;
@@ -787,7 +789,16 @@
       }
     }
 
+    
     function finishWorkout() {
+      if (isFinishing) return; // Si ya se está ejecutando, ignora la segunda llamada
+      isFinishing = true;
+    
+      // Detener inmediatamente el temporizador para evitar ticks extra
+      if (workoutState.timerInterval) {
+        clearInterval(workoutState.timerInterval);
+        workoutState.timerInterval = null;
+      }
       playChime();
       saveHistory();
       setTimeout(() => {
