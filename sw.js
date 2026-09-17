@@ -1,5 +1,5 @@
 // Cambia la versión del caché a v4.1 para forzar la actualización
-const CACHE_NAME = 'tabata-timer-v6.4'; 
+const CACHE_NAME = 'tabata-timer-v6.5'; 
 
 const ASSETS_TO_CACHE = [
   './',
