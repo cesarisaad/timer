@@ -186,6 +186,8 @@
       <div>
         <div id="phase-display">PREPARADOS</div>
         <div id="exercise-display">Ejercicio</div>
+        <!-- NUEVO: Indicador del siguiente ejercicio -->
+        <div id="next-exercise-display" style="font-size: 0.95rem; color: #3498db; margin-top: 4px; font-weight: 500; min-height: 1.2em;"></div>
       </div>
 
       <div class="timer-display-container">
@@ -625,6 +627,7 @@
       document.getElementById('total-workout-timer').textContent = 'Tiempo Sesión: 00:00 / 00:00';
       document.getElementById('timer-blur-bg').style.height = '0%';
       document.getElementById('btn-pause').textContent = 'Pausar';
+      document.getElementById('next-exercise-display').textContent = '';
     }
 
     function startWorkout() {
@@ -746,6 +749,7 @@
       const phaseEl = document.getElementById('phase-display');
       const timeEl = document.getElementById('time-display');
       const exEl = document.getElementById('exercise-display');
+      const nextExEl = document.getElementById('next-exercise-display'); // Referencia al nuevo elemento
       const progEl = document.getElementById('progress-display');
       const totalTimerEl = document.getElementById('total-workout-timer');
       const blurBg = document.getElementById('timer-blur-bg');
@@ -758,6 +762,18 @@
       
       totalTimerEl.textContent = `Tiempo Sesión: ${formatTime(workoutState.totalDuration)} / ${formatTime(workoutState.estimatedTotalSeconds)}`;
 
+      // Lógica para mostrar el Próximo Ejercicio únicamente en la última serie del ejercicio actual
+      if (workoutState.currentSet === currentEx.sets) {
+        if (workoutState.currentExIndex < exercises.length - 1) {
+          const nextEx = exercises[workoutState.currentExIndex + 1];
+          nextExEl.textContent = `Próximo: ${nextEx.name}`;
+        } else {
+          nextExEl.textContent = `Próximo: ¡Fin de la rutina!`;
+        }
+      } else {
+        nextExEl.textContent = ''; // Se mantiene limpio durante las series intermedias
+      }
+      
       const elapsed = workoutState.phaseTotalTime - workoutState.timeRemaining;
       const progressPercent = Math.min(100, Math.max(0, (elapsed / workoutState.phaseTotalTime) * 100));
       blurBg.style.height = `${progressPercent}%`;
